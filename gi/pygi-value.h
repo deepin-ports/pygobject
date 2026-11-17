@@ -15,11 +15,9 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PYGI_VALUE_H__
-#define __PYGI_VALUE_H__
+#pragma once
 
 #include <girepository/girepository.h>
-#include <glib-object.h>
 #include <pythoncapi_compat.h>
 
 G_BEGIN_DECLS
@@ -29,22 +27,14 @@ GIArgument _pygi_argument_from_g_value (const GValue *value,
 
 int pyg_value_from_pyobject (GValue *value, PyObject *obj);
 int pyg_value_from_pyobject_with_error (GValue *value, PyObject *obj);
-PyObject *pyg_value_as_pyobject (const GValue *value, gboolean copy_boxed);
+PyObject *pyg_value_to_pyobject (const GValue *value, gboolean copy_boxed);
 int pyg_param_gvalue_from_pyobject (GValue *value, PyObject *py_obj,
                                     const GParamSpec *pspec);
-PyObject *pyg_param_gvalue_as_pyobject (const GValue *gvalue,
-                                        gboolean copy_boxed,
-                                        const GParamSpec *pspec);
-PyObject *pyg_strv_from_gvalue (const GValue *value);
-int pyg_strv_to_gvalue (GValue *value, PyObject *obj);
 
-PyObject *pygi_value_to_py_basic_type (const GValue *value, GType fundamental,
-                                       gboolean *handled);
+PyObject *pygi_value_to_py_basic_type (const GValue *value, GType fundamental);
 
 PyObject *pyg__gvalue_get (PyObject *module, PyObject *pygvalue);
 PyObject *pyg__gvalue_set (PyObject *module, PyObject *args);
 PyObject *pyg__gvalue_get_type (PyObject *module, PyObject *pygvalue);
 
 G_END_DECLS
-
-#endif /* __PYGI_VALUE_H__ */

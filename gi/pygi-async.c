@@ -17,18 +17,12 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <glib.h>
-#include <pythoncapi_compat.h>
-#include <structmember.h>
-
-#include "pygobject-object.h"
+#include "pygi-async.h"
 
 #include "pygboxed.h"
-#include "pygi-async.h"
-#include "pygi-info.h"
 #include "pygi-invoke.h"
 #include "pygi-util.h"
-
+#include "pygobject-object.h"
 
 static PyObject *asyncio_InvalidStateError;
 static PyObject *asyncio_get_running_loop;
@@ -69,8 +63,14 @@ async_repr (PyGIAsync *self)
  * Cancel the asynchronous operation.
  */
 static PyObject *
-async_cancel (PyGIAsync *self)
+async_cancel (PyGIAsync *self, PyObject *args, PyObject *kwargs)
 {
+    static char *kwlist[] = { "msg", NULL };
+    const char *msg = NULL;
+
+    if (!PyArg_ParseTupleAndKeywords (args, kwargs, "|z", kwlist, &msg))
+        return NULL;
+
     return PyObject_CallMethod (self->cancellable, "cancel", NULL);
 }
 
@@ -301,7 +301,7 @@ out:
 }
 
 static PyMethodDef async_methods[] = {
-    { "cancel", (PyCFunction)async_cancel, METH_NOARGS },
+    { "cancel", (PyCFunction)async_cancel, METH_VARARGS | METH_KEYWORDS },
     { "done", (PyCFunction)async_done, METH_NOARGS },
     { "result", (PyCFunction)async_result, METH_NOARGS },
     { "exception", (PyCFunction)async_exception, METH_NOARGS },
@@ -309,6 +309,8 @@ static PyMethodDef async_methods[] = {
       METH_VARARGS | METH_KEYWORDS },
     { "remove_done_callback", (PyCFunction)async_remove_done_callback,
       METH_O },
+    { "__class_getitem__", Py_GenericAlias, METH_O | METH_CLASS,
+      PyDoc_STR ("See PEP 585") }, /* generic subscript support */
     { NULL, NULL, 0 },
 };
 
@@ -548,13 +550,13 @@ pygi_async_new (PyObject *finish_func, PyObject *cancellable)
 }
 
 static struct PyMemberDef async_members[] = {
-    { "_asyncio_future_blocking", T_BOOL,
+    { "_asyncio_future_blocking", Py_T_BOOL,
       offsetof (PyGIAsync, _asyncio_future_blocking), 0, NULL },
-    { "_loop", T_OBJECT, offsetof (PyGIAsync, loop), READONLY, NULL },
-    { "_finish_func", T_OBJECT, offsetof (PyGIAsync, finish_func), READONLY,
-      NULL },
-    { "cancellable", T_OBJECT, offsetof (PyGIAsync, cancellable), READONLY,
-      "The Gio.Cancellable associated with the task." },
+    { "_loop", Py_T_OBJECT_EX, offsetof (PyGIAsync, loop), Py_READONLY, NULL },
+    { "_finish_func", Py_T_OBJECT_EX, offsetof (PyGIAsync, finish_func),
+      Py_READONLY, NULL },
+    { "cancellable", Py_T_OBJECT_EX, offsetof (PyGIAsync, cancellable),
+      Py_READONLY, "The Gio.Cancellable associated with the task." },
     {
         NULL,
     },

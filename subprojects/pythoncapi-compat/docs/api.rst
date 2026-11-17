@@ -26,6 +26,41 @@ Latest version of the header file:
 `pythoncapi_compat.h <https://raw.githubusercontent.com/python/pythoncapi-compat/main/pythoncapi_compat.h>`_.
 
 
+Python 3.15
+-----------
+
+.. c:function:: PyObject* PySys_GetAttr(const char *name)
+
+   See `PySys_GetAttr() documentation  <https://docs.python.org/dev/c-api/sys.html#c.PySys_GetAttr>`__.
+
+.. c:function:: PyObject* PySys_GetAttrString(const char *name)
+
+   See `PySys_GetAttrString() documentation  <https://docs.python.org/dev/c-api/sys.html#c.PySys_GetAttrString>`__.
+
+.. c:function:: PyObject* PySys_GetOptionalAttr(const char *name)
+
+   See `PySys_GetOptionalAttr() documentation  <https://docs.python.org/dev/c-api/sys.html#c.PySys_GetOptionalAttr>`__.
+
+.. c:function:: PyObject* PySys_GetOptionalAttrString(const char *name)
+
+   See `PySys_GetOptionalAttrString() documentation  <https://docs.python.org/dev/c-api/sys.html#c.PySys_GetOptionalAttrString>`__.
+
+.. c:function:: PyBytesWriter* PyBytesWriter_Create(Py_ssize_t size)
+.. c:function:: void* PyBytesWriter_GetData(PyBytesWriter *writer)
+.. c:function:: Py_ssize_t PyBytesWriter_GetSize(PyBytesWriter *writer)
+.. c:function:: PyObject* PyBytesWriter_FinishWithSize(PyBytesWriter *writer, Py_ssize_t size)
+.. c:function:: PyObject* PyBytesWriter_Finish(PyBytesWriter *writer)
+.. c:function:: PyObject* PyBytesWriter_FinishWithPointer(PyBytesWriter *writer, void *buf)
+.. c:function:: void PyBytesWriter_Discard(PyBytesWriter *writer)
+.. c:function:: int PyBytesWriter_Resize(PyBytesWriter *writer, Py_ssize_t size)
+.. c:function:: int PyBytesWriter_Grow(PyBytesWriter *writer, Py_ssize_t size)
+.. c:function:: void* PyBytesWriter_GrowAndUpdatePointer(PyBytesWriter *writer, Py_ssize_t size, void *buf)
+.. c:function:: int PyBytesWriter_WriteBytes(PyBytesWriter *writer, const void *bytes, Py_ssize_t size)
+.. c:function:: int PyBytesWriter_Format(PyBytesWriter *writer, const char *format, ...)
+
+   See `PyBytesWriter documentation  <https://docs.python.org/dev/c-api/bytes.html#pybyteswriter>`__.
+
+
 Python 3.14
 -----------
 
@@ -117,6 +152,10 @@ Python 3.14
 
    See `PyUnicodeWriter_WriteUTF8() documentation <https://docs.python.org/dev/c-api/unicode.html#c.PyUnicodeWriter_WriteUTF8>`__.
 
+.. c:function:: int PyUnicodeWriter_WriteASCII(PyUnicodeWriter *writer, const char *str, Py_ssize_t size)
+
+   See `PyUnicodeWriter_WriteASCII() documentation <https://docs.python.org/dev/c-api/unicode.html#c.PyUnicodeWriter_WriteASCII>`__.
+
 .. c:function:: int PyUnicodeWriter_WriteWideChar(PyUnicodeWriter *writer, const wchar_t *str, Py_ssize_t size)
 
    See `PyUnicodeWriter_WriteWideChar() documentation <https://docs.python.org/dev/c-api/unicode.html#c.PyUnicodeWriter_WriteWideChar>`__.
@@ -185,6 +224,9 @@ Python 3.14
 
    See `PyConfig_GetInt() documentation <https://docs.python.org/dev/c-api/init_config.html#c.PyConfig_GetInt>`__.
 
+.. c:function:: int PyUnstable_Object_IsUniquelyReferenced(PyObject *op)
+
+   See `PyUnstable_Object_IsUniquelyReferenced() documentation <https://docs.python.org/dev/c-api/object.html#c.PyUnstable_Object_IsUniquelyReferenced>`__.
 
 Not supported:
 

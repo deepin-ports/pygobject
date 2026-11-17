@@ -22,7 +22,6 @@ override_dh_auto_configure-arch:
 			--builddirectory=build-$$v \
 			-- \
 			-Dpython=/usr/bin/python$$v \
-			-Dauto_features=enabled \
 			; \
 	done
 
@@ -72,6 +71,3 @@ override_dh_auto_install-arch:
 			-- \
 			; \
 	done
-
-override_dh_strip:
-	dh_strip --dbgsym-migration='python3-gi-dbg (<< 3.46.0-2~)'

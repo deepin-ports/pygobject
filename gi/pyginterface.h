@@ -18,18 +18,20 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PYGOBJECT_INTERFACE_H__
-#define __PYGOBJECT_INTERFACE_H__
+#pragma once
+
+#include <glib-object.h>
+#include <pythoncapi_compat.h>
+
+G_BEGIN_DECLS
 
 extern GQuark pyginterface_type_key;
 extern GQuark pyginterface_info_key;
 
 extern PyTypeObject PyGInterface_Type;
 
-void pyg_register_interface (PyObject *dict, const gchar *class_name,
-                             GType gtype, PyTypeObject *type);
 const GInterfaceInfo *pyg_lookup_interface_info (GType gtype);
 void pyg_register_interface_info (GType gtype, const GInterfaceInfo *info);
 int pygi_interface_register_types (PyObject *d);
 
-#endif /* __PYGOBJECT_INTERFACE_H__ */
+G_END_DECLS

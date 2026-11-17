@@ -8,6 +8,7 @@ import os
 import gc
 import weakref
 import warnings
+import pathlib
 import pickle
 import platform
 import enum
@@ -684,6 +685,14 @@ class TestUtf8(unittest.TestCase):
             data = data.encode("utf-8")
         GIMarshallingTests.utf8_as_uint8array_in(data)
 
+    def test_utf8_as_string_array_in(self):
+        data = CONSTANT_UTF8
+        with pytest.raises(
+            TypeError,
+            match=r"Unable to marshal str as an array, use \.encode\(\) to convert to bytes",
+        ):
+            GIMarshallingTests.utf8_as_uint8array_in(data)
+
     def test_utf8_none_return(self):
         self.assertEqual(CONSTANT_UTF8, GIMarshallingTests.utf8_none_return())
 
@@ -718,6 +727,14 @@ class TestUtf8(unittest.TestCase):
     def test_utf8_full_inout(self):
         self.assertEqual("", GIMarshallingTests.utf8_full_inout(CONSTANT_UTF8))
 
+    def test_zero_terminated_array_utf8_full_in(self):
+        GIMarshallingTests.zero_terminated_array_utf8_full_in(["🅰", "β", "c", "d"])
+
+        with self.assertRaises(TypeError):
+            GIMarshallingTests.zero_terminated_array_utf8_full_in(
+                ["🅰", "β", "c", "d"], 1
+            )
+
 
 class TestFilename(unittest.TestCase):
     def setUp(self):
@@ -751,6 +768,25 @@ class TestFilename(unittest.TestCase):
     def test_filename_in_nullable(self):
         self.assertTrue(GIMarshallingTests.filename_copy(None) is None)
         self.assertRaises(TypeError, GIMarshallingTests.filename_exists, None)
+
+    def test_filename_in_pathlike(self):
+        fpath = pathlib.Path(self.workdir) / "test_pathlike.txt"
+
+        try:
+            os.path.exists(fpath)
+        except ValueError:
+            # non-unicode fs encoding
+            return
+
+        self.assertRaises(GLib.GError, GLib.file_get_contents, fpath)
+        self.assertRaises(TypeError, GLib.file_get_contents, 12345)
+
+        with open(fpath, "wb") as f:
+            f.write(b"hello world!\n\x01\x02")
+
+        (result, contents) = GLib.file_get_contents(fpath)
+        self.assertEqual(result, True)
+        self.assertEqual(contents, b"hello world!\n\x01\x02")
 
     @unittest.skipIf(os.name == "nt", "fixme")
     def test_filename_out(self):
@@ -898,28 +934,22 @@ class TestFilename(unittest.TestCase):
 
 
 class TestArray(unittest.TestCase):
-    @unittest.skipUnless(hasattr(GIMarshallingTests, "array_bool_in"), "too old gi")
     def test_array_bool_in(self):
         GIMarshallingTests.array_bool_in([True, False, True, True])
 
-    @unittest.skipUnless(hasattr(GIMarshallingTests, "array_bool_out"), "too old gi")
     def test_array_bool_out(self):
         assert GIMarshallingTests.array_bool_out() == [True, False, True, True]
 
-    @unittest.skipUnless(hasattr(GIMarshallingTests, "array_int64_in"), "too old gi")
     def test_array_int64_in(self):
         GIMarshallingTests.array_int64_in([-1, 0, 1, 2])
 
-    @unittest.skipUnless(hasattr(GIMarshallingTests, "array_uint64_in"), "too old gi")
     def test_array_uint64_in(self):
         GIMarshallingTests.array_uint64_in([GLib.MAXUINT64, 0, 1, 2])
 
-    @unittest.skipUnless(hasattr(GIMarshallingTests, "array_unichar_in"), "too old gi")
     def test_array_unichar_in(self):
         GIMarshallingTests.array_unichar_in(list(CONSTANT_UCS4))
         GIMarshallingTests.array_unichar_in(CONSTANT_UCS4)
 
-    @unittest.skipUnless(hasattr(GIMarshallingTests, "array_unichar_out"), "too old gi")
     def test_array_unichar_out(self):
         result = list(CONSTANT_UCS4)
         assert GIMarshallingTests.array_unichar_out() == result
@@ -1033,6 +1063,16 @@ class TestArray(unittest.TestCase):
         struct3.long_ = 3
 
         GIMarshallingTests.array_struct_in([struct1, struct2, struct3])
+
+    def test_array_boxed_struct_full_in(self):
+        struct1 = GIMarshallingTests.BoxedStruct()
+        struct1.long_ = 1
+        struct2 = GIMarshallingTests.BoxedStruct()
+        struct2.long_ = 2
+        struct3 = GIMarshallingTests.BoxedStruct()
+        struct3.long_ = 3
+
+        GIMarshallingTests.array_struct_full_in([struct1, struct2, struct3])
 
     def test_array_boxed_struct_in_item_marshal_failure(self):
         struct1 = GIMarshallingTests.BoxedStruct()
@@ -1166,6 +1206,37 @@ class TestArray(unittest.TestCase):
             ],
         )
 
+    def test_array_fixed_caller_allocated_out(self):
+        self.assertEqual(
+            GIMarshallingTests.array_fixed_caller_allocated_out(),
+            [
+                -1,
+                0,
+                1,
+                2,
+            ],
+        )
+
+    def test_array_fixed_caller_allocated_struct_out(self):
+        array = GIMarshallingTests.array_fixed_caller_allocated_struct_out()
+        self.assertEqual(len(array), 4)
+
+        self.assertIsInstance(array[0], GIMarshallingTests.SimpleStruct)
+        self.assertEqual(array[0].long_, -2)
+        self.assertEqual(array[0].int8, -1)
+
+        self.assertIsInstance(array[1], GIMarshallingTests.SimpleStruct)
+        self.assertEqual(array[1].long_, 1)
+        self.assertEqual(array[1].int8, 2)
+
+        self.assertIsInstance(array[2], GIMarshallingTests.SimpleStruct)
+        self.assertEqual(array[2].long_, 3)
+        self.assertEqual(array[2].int8, 4)
+
+        self.assertIsInstance(array[3], GIMarshallingTests.SimpleStruct)
+        self.assertEqual(array[3].long_, 5)
+        self.assertEqual(array[3].int8, 6)
+
 
 class TestLengthArray(unittest.TestCase):
     def test_length_array_utf8_none_inout(self):
@@ -1235,15 +1306,9 @@ class TestArrayGVariant(unittest.TestCase):
 
 
 class TestGArray(unittest.TestCase):
-    @unittest.skipUnless(
-        hasattr(GIMarshallingTests, "garray_bool_none_in"), "too old gi"
-    )
     def test_garray_bool_none_in(self):
         GIMarshallingTests.garray_bool_none_in([True, False, True, True])
 
-    @unittest.skipUnless(
-        hasattr(GIMarshallingTests, "garray_unichar_none_in"), "too old gi"
-    )
     def test_garray_unichar_none_in(self):
         GIMarshallingTests.garray_unichar_none_in(CONSTANT_UCS4)
         GIMarshallingTests.garray_unichar_none_in(list(CONSTANT_UCS4))
@@ -1254,6 +1319,16 @@ class TestGArray(unittest.TestCase):
     def test_garray_uint64_none_return(self):
         self.assertEqual(
             [0, GLib.MAXUINT64], GIMarshallingTests.garray_uint64_none_return()
+        )
+
+    def test_garray_enum_none_return(self):
+        self.assertEqual(
+            [
+                GIMarshallingTests.GEnum.VALUE1,
+                GIMarshallingTests.GEnum.VALUE2,
+                GIMarshallingTests.GEnum.VALUE3,
+            ],
+            GIMarshallingTests.garray_enum_none_return(),
         )
 
     def test_garray_utf8_none_return(self):
@@ -1337,6 +1412,12 @@ class TestGPtrArray(unittest.TestCase):
     def test_gptrarray_utf8_none_in(self):
         GIMarshallingTests.gptrarray_utf8_none_in(Sequence(["0", "1", "2"]))
 
+        self.assertRaises(
+            TypeError,
+            GIMarshallingTests.gptrarray_utf8_none_in,
+            Sequence(["0", "1", 2]),
+        )
+
     def test_gptrarray_utf8_none_out(self):
         self.assertEqual(["0", "1", "2"], GIMarshallingTests.gptrarray_utf8_none_out())
 
@@ -1370,6 +1451,11 @@ class TestGPtrArray(unittest.TestCase):
 class TestGBytes(unittest.TestCase):
     def test_gbytes_create(self):
         b = GLib.Bytes.new(b"\x00\x01\xff")
+        self.assertEqual(3, b.get_size())
+        self.assertEqual(b"\x00\x01\xff", b.get_data())
+
+    def test_gbytes_create_from_bytearray(self):
+        b = GLib.Bytes.new(bytearray(b"\x00\x01\xff"))
         self.assertEqual(3, b.get_size())
         self.assertEqual(b"\x00\x01\xff", b.get_data())
 
@@ -1741,6 +1827,14 @@ class TestGValue(unittest.TestCase):
         )
         GIMarshallingTests.gvalue_in_enum(value)
 
+    def test_unset_gvalue(self):
+        v = GObject.Value()
+        v2 = GObject.Value(GObject.Value.__gtype__, v)
+
+        assert type(v2) is GObject.Value
+        with pytest.raises(TypeError):
+            v2.get_value()
+
     def test_gvalue_out(self):
         self.assertEqual(42, GIMarshallingTests.gvalue_out())
 
@@ -1805,7 +1899,6 @@ class TestGValue(unittest.TestCase):
         value = GObject.Value(GObject.TYPE_OBJECT, obj)
         del value
         gc.collect()
-        gc.collect()
         assert obj.__grefcount__ == grefcount
 
     def test_gvalue_gobject_ref_counts(self):
@@ -1838,7 +1931,6 @@ class TestGValue(unittest.TestCase):
         # refcount back to where we started
         del res
         del value
-        gc.collect()
         gc.collect()
         self.assertEqual(obj.__grefcount__, grefcount)
 
@@ -2223,7 +2315,7 @@ class TestGFlags(unittest.TestCase):
         GIMarshallingTests.flags_in_zero(Number(0))
         GIMarshallingTests.Flags.in_zero(Number(0))
 
-        self.assertRaises(TypeError, GIMarshallingTests.flags_in, 1 << 1)
+        GIMarshallingTests.flags_in(1 << 1)
         self.assertRaises(
             TypeError, GIMarshallingTests.flags_in, "GIMarshallingTests.Flags.VALUE2"
         )
@@ -2323,7 +2415,7 @@ class TestNoTypeFlags(unittest.TestCase):
         )
         GIMarshallingTests.no_type_flags_in_zero(Number(0))
 
-        self.assertRaises(TypeError, GIMarshallingTests.no_type_flags_in, 1 << 1)
+        GIMarshallingTests.no_type_flags_in(1 << 1)
         self.assertRaises(
             TypeError,
             GIMarshallingTests.no_type_flags_in,
@@ -2538,6 +2630,12 @@ class TestStructure(unittest.TestCase):
 
         del in_struct
         del out_struct
+
+    def test_pointer_array_struct_with_guint8(self):
+        out_struct = GIMarshallingTests.PointerArrayStruct.with_uint8_array()
+
+        with pytest.raises(TypeError):
+            assert out_struct.array == list(map(ord, "0123456789"))
 
     def test_struct_field_assignment(self):
         struct = GIMarshallingTests.BoxedStruct()
@@ -2879,9 +2977,6 @@ class TestPythonGObject(unittest.TestCase):
         object_ = self.Object(int=42)
         self.assertTrue(isinstance(object_, self.Object))
 
-    @unittest.skipUnless(
-        hasattr(GIMarshallingTests.Object, "new_fail"), "Requires newer version of GI"
-    )
     def test_object_fail(self):
         with self.assertRaises(GLib.Error):
             GIMarshallingTests.Object.new_fail(int_=42)
@@ -3064,10 +3159,6 @@ class TestPythonGObject(unittest.TestCase):
         self.assertEqual(len(exc), 1)
         self.assertEqual(exc[0].type, ValueError)
 
-    @unittest.skipUnless(
-        hasattr(GIMarshallingTests, "callback_owned_boxed"),
-        "requires newer version of GI",
-    )
     def test_callback_owned_box(self):
         def callback(box, data):
             self.box = box
@@ -3078,6 +3169,42 @@ class TestPythonGObject(unittest.TestCase):
         GIMarshallingTests.callback_owned_boxed(callback, None)
         GIMarshallingTests.callback_owned_boxed(nop_callback, None)
         self.assertEqual(self.box.long_, 1)
+
+    def test_callback_user_data_after_callback(self):
+        def callback(*args):
+            self.callback_args = args
+
+        GIMarshallingTests.callback_user_data_after_callback(1, 2, callback)
+        self.assertEqual(self.callback_args, (1, 2))
+
+        GIMarshallingTests.callback_user_data_after_callback(3, 4, callback, "testdata")
+        self.assertEqual(self.callback_args, (3, 4, "testdata"))
+
+        GIMarshallingTests.callback_user_data_after_callback(
+            5, 6, callback, "more testdata", "even more testdata"
+        )
+        self.assertEqual(
+            self.callback_args, (5, 6, "more testdata", "even more testdata")
+        )
+
+    def test_callback_user_data_before_callback(self):
+        def callback(*args):
+            self.callback_args = args
+
+        GIMarshallingTests.callback_user_data_before_callback(1, 2, None, callback)
+        self.assertEqual(self.callback_args, (1, 2, None))
+
+        GIMarshallingTests.callback_user_data_before_callback(
+            3, 4, "testdata", callback
+        )
+        self.assertEqual(self.callback_args, (3, 4, "testdata"))
+
+        GIMarshallingTests.callback_user_data_before_callback(
+            5, 6, ("more testdata", "even more testdata"), callback
+        )
+        self.assertEqual(
+            self.callback_args, (5, 6, ("more testdata", "even more testdata"))
+        )
 
 
 class TestMultiOutputArgs(unittest.TestCase):
@@ -3498,10 +3625,6 @@ class TestKeywordArgs(unittest.TestCase):
         GIMarshallingTests.int_three_in_three_out(1, c=4, **d)
         self.assertEqual(d, d2)
 
-    @unittest.skipUnless(
-        hasattr(GIMarshallingTests, "int_one_in_utf8_two_in_one_allows_none"),
-        "Requires newer GIMarshallingTests",
-    )
     def test_allow_none_as_default(self):
         GIMarshallingTests.int_two_in_utf8_two_in_with_allow_none(1, 2, "3", "4")
         GIMarshallingTests.int_two_in_utf8_two_in_with_allow_none(1, 2, "3")

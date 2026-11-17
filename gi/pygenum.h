@@ -17,12 +17,12 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PYGOBJECT_ENUM_H__
-#define __PYGOBJECT_ENUM_H__
+#pragma once
 
-#include <glib-object.h>
 #include <girepository/girepository.h>
 #include <pythoncapi_compat.h>
+
+G_BEGIN_DECLS
 
 extern GQuark pygenum_class_key;
 
@@ -40,10 +40,8 @@ PyObject *pyg_enum_val_new (PyObject *pyclass, int value);
 
 PyObject *pyg_enum_from_gtype (GType gtype, int value);
 
-int pyg_enum_check_type (PyObject *obj, GType expected_type);
-
 gint pyg_enum_get_value (GType enum_type, PyObject *obj, gint *val);
 
 int pygi_enum_register_types (PyObject *mod);
 
-#endif /* __PYGOBJECT_ENUM_H__ */
+G_END_DECLS

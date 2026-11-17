@@ -24,14 +24,13 @@
  */
 
 
-#include <girepository/girepository.h>
-
-#include "pygobject-internal.h"
-#include "pygi-info.h"
-#include "pygi-util.h"
 #include "pygi-fundamental.h"
+
+#include "pygi-info.h"
 #include "pygi-repository.h"
+#include "pygi-util.h"
 #include "pygobject-object.h"  // for pygobject_lookup_class
+#include "pygobject-types.h"
 
 
 static PyGIFundamental *_pygi_fundamental_new_internal (PyTypeObject *type,

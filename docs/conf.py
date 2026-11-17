@@ -15,6 +15,7 @@ intersphinx_mapping = {
 }
 
 source_suffix = {".rst": "restructuredtext"}
+templates_path = ["_templates"]
 master_doc = "index"
 exclude_patterns = ["_build", "README.rst"]
 
@@ -26,9 +27,6 @@ project = "PyGObject"
 html_title = project
 
 html_context = {
-    "extra_css_files": [
-        "_static/extra.css",
-    ],
     "display_gitlab": True,
     "gitlab_user": "GNOME",
     "gitlab_repo": "pygobject",
@@ -37,12 +35,8 @@ html_context = {
     "gitlab_host": "gitlab.gnome.org",
 }
 
-html_static_path = [
-    "extra.css",
-    "images/pygobject-small.svg",
-    "images/arch.svg",
-    "images/arch-dark.svg",
-]
+html_static_path = ["images", "extra.css"]
+html_css_files = ["extra.css"]
 
 extlinks = {
     "bzbug": ("https://bugzilla.gnome.org/show_bug.cgi?id=%s", "bz#%s"),

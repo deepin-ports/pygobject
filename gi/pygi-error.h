@@ -19,10 +19,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PYGI_ERROR_H__
-#define __PYGI_ERROR_H__
+#pragma once
 
-#include <girepository/girepository.h>
 #include "pygi-cache.h"
 
 G_BEGIN_DECLS
@@ -37,12 +35,6 @@ gboolean pygi_error_marshal_from_py (PyObject *pyerr, GError **error);
 
 gboolean pygi_gerror_exception_check (GError **error);
 
-PyGIArgCache *pygi_arg_gerror_new_from_info (
-    GITypeInfo *type_info, GIArgInfo *arg_info, /* may be null */
-    GITransfer transfer, PyGIDirection direction);
-
 int pygi_error_register_types (PyObject *module);
 
 G_END_DECLS
-
-#endif /*__PYGI_ERROR_H__*/

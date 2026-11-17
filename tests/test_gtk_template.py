@@ -1,5 +1,8 @@
-import tempfile
+import gc
 import os
+import tempfile
+import weakref
+
 import pytest
 
 Gtk = pytest.importorskip("gi.repository.Gtk")
@@ -423,6 +426,29 @@ def test_from_file():
         os.remove(name)
 
 
+def test_from_path(tmp_path):
+    name = tmp_path / "tmpl.xml"
+    type_name = new_gtype_name()
+
+    with open(name, "wb") as h:
+        h.write(
+            f"""\
+<interface>
+    <template class="{type_name}" parent="GtkBox">
+    <property name="spacing">42</property>
+    </template>
+</interface>
+""".encode()
+        )
+
+    @Gtk.Template.from_file(name)
+    class Foo(Gtk.Box):
+        __gtype_name__ = type_name
+
+    foo = Foo()
+    assert foo.props.spacing == 42
+
+
 def test_property_override():
     type_name = new_gtype_name()
 
@@ -728,3 +754,83 @@ def test_python_class_hierarchy():
     children = childBox.get_children() if not GTK4 else list(childBox)
 
     assert len(children) == 1
+
+
+@pytest.mark.skipif(not GTK4, reason="GTK 4 only")
+def test_finalization_of_custom_child_objects():
+    xml = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="CustomBox" parent="GtkBox">
+        <child>
+            <object class="CustomLabel">
+                <property name="label">CustomLabel</property>
+            </object>
+        </child>
+    </template>
+    </interface>
+    """
+
+    class CustomLabel(Gtk.Label):
+        __gtype_name__ = "CustomLabel"
+
+        def do_unroot(self) -> None:
+            check_finalize(self)
+
+    @Gtk.Template(string=xml)
+    class CustomBox(Gtk.Box):
+        __gtype_name__ = "CustomBox"
+
+        def do_unroot(self) -> None:
+            check_finalize(self)
+
+    finalized = []
+
+    def check_finalize(obj) -> None:
+        name = obj.__class__.__name__
+        obj.weak_ref(lambda: finalized.append(f"{name} -> GObject finalized"))
+        weakref.finalize(obj, finalized.append, f"{name} -> PyObject finalized")
+
+    custom_box = CustomBox()
+    box = Gtk.Box()
+    box.append(custom_box)
+    window = Gtk.Window()
+    window.set_child(box)
+    window.present()
+    box.remove(custom_box)
+
+    del custom_box
+
+    assert "CustomBox -> PyObject finalized" in finalized
+    assert "CustomBox -> GObject finalized" in finalized
+    assert "CustomLabel -> PyObject finalized" in finalized
+    assert "CustomLabel -> GObject finalized" in finalized
+
+
+def test_signal_handler_with_object_does_not_leak_memory():
+    """Regression test for a memory leak when using signal handlers in GTK templates.
+    Note that this example is intentionally minimal, i.e. the handler doesn't even
+    need to exist on the class. The only requirement is that the `object` is specified.
+    """
+    type_name = new_gtype_name()
+    xml = f"""\
+    <?xml version="1.0" encoding="UTF-8"?>
+    <interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="{type_name}" parent="GtkWidget">
+        <signal name="show" handler="on_show" object="{type_name}" swapped="no" />
+    </template>
+    </interface>
+    """
+
+    @Gtk.Template(string=xml)
+    class MyWidget(Gtk.Widget):
+        __gtype_name__ = type_name
+
+    weak = MyWidget().weak_ref()
+
+    gc.collect()
+    gc.collect()  # One more for PyPy
+
+    assert weak() is None

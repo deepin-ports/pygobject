@@ -1,3 +1,4 @@
+import gc
 import os
 import sys
 import signal
@@ -6,14 +7,13 @@ import atexit
 import warnings
 
 import pytest
-import contextlib
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_call(item):
     """A pytest hook which takes over sys.excepthook and raises any uncaught
-    exception (with PyGObject this happesn often when we get called from C,
-    like any signal handler, vfuncs tc).
+    exception. With PyGObject this happens often when we get called from C,
+    like signal handlers, vfuncs.
     """
     exceptions = []
 
@@ -31,47 +31,34 @@ def pytest_runtest_call(item):
             outcome.force_exception(tp(value).with_traceback(tb))
 
 
-def set_dll_search_path():
-    # Python 3.8 no longer searches for DLLs in PATH, so we have to add
-    # everything in PATH manually. Note that unlike PATH add_dll_directory
-    # has no defined order, so if there are two cairo DLLs in PATH we
-    # might get a random one.
-    if os.name != "nt" or not hasattr(os, "add_dll_directory"):
-        return
-    for p in os.environ.get("PATH", "").split(os.pathsep):
-        with contextlib.suppress(OSError):
-            os.add_dll_directory(p)
-
-
 def os_environ_prepend(envvar, path):
     current = os.environ.get(envvar)
     os.environ[envvar] = os.path.pathsep.join([path, current] if current else [path])
 
 
-def init_test_environ():
-    set_dll_search_path()
+def dbus_launch_session():
+    if os.name == "nt" or sys.platform == "darwin":
+        return (-1, "")
 
-    def dbus_launch_session():
-        if os.name == "nt" or sys.platform == "darwin":
-            return (-1, "")
+    try:
+        out = subprocess.check_output(
+            [
+                "dbus-daemon",
+                "--session",
+                "--fork",
+                "--print-address=1",
+                "--print-pid=1",
+            ]
+        )
+    except (subprocess.CalledProcessError, OSError):
+        return (-1, "")
+    else:
+        out = out.decode("utf-8")
+        addr, pid = out.splitlines()
+        return int(pid), addr
 
-        try:
-            out = subprocess.check_output(
-                [
-                    "dbus-daemon",
-                    "--session",
-                    "--fork",
-                    "--print-address=1",
-                    "--print-pid=1",
-                ]
-            )
-        except (subprocess.CalledProcessError, OSError):
-            return (-1, "")
-        else:
-            out = out.decode("utf-8")
-            addr, pid = out.splitlines()
-            return int(pid), addr
 
+def pytest_configure(config):
     pid, addr = dbus_launch_session()
     if pid >= 0:
         os.environ["DBUS_SESSION_BUS_ADDRESS"] = addr
@@ -81,12 +68,8 @@ def init_test_environ():
 
     # force untranslated messages, as we check for them in some tests
     os.environ["LC_MESSAGES"] = "C"
-    os.environ["G_DEBUG"] = "fatal-warnings fatal-criticals"
-    if sys.platform == "darwin" or os.name == "nt":
-        # gtk 3.22 has warnings and ciriticals on OS X, ignore for now.
-        # On Windows glib will create an error dialog which will block tests
-        # so it's never a good idea there to make things fatal.
-        os.environ["G_DEBUG"] = ""
+    if os.name != "nt":
+        os.environ["G_DEBUG"] = "fatal-warnings fatal-criticals"
 
     # First add test directory, since we have a gi package there
     tests_srcdir = os.path.abspath(os.path.dirname(__file__))
@@ -108,7 +91,12 @@ def init_test_environ():
     # before importing Gio. Support a separate build tree, so look in build dir
     # first.
     os.environ["GSETTINGS_BACKEND"] = "memory"
-    os.environ["GSETTINGS_SCHEMA_DIR"] = tests_builddir
+    os.environ["GSETTINGS_SCHEMA_DIR"] = os.pathsep.join(
+        [
+            tests_builddir,
+            os.environ.get("GSETTINGS_SCHEMA_DIR", ""),
+        ]
+    )
     os.environ["G_FILENAME_ENCODING"] = "UTF-8"
 
     # Avoid accessibility dbus warnings
@@ -175,4 +163,7 @@ def init_test_environ():
             raise RuntimeError("Gtk available, but Gtk.init_check() failed")
 
 
-init_test_environ()
+def pytest_sessionfinish(session, exitstatus):
+    """Make sure to run GC a couple of times. This helps in memory analysis."""
+    gc.collect()
+    gc.collect()

@@ -17,14 +17,9 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PYGI_INVOKE_H__
-#define __PYGI_INVOKE_H__
-
-#include <girepository/girepository.h>
-#include <pythoncapi_compat.h>
+#pragma once
 
 #include "pygi-info.h"
-#include "pygi-invoke-state-struct.h"
 
 G_BEGIN_DECLS
 
@@ -41,5 +36,3 @@ gboolean _pygi_invoke_arg_state_init (PyGIInvokeState *state);
 void _pygi_invoke_arg_state_free (PyGIInvokeState *state);
 
 G_END_DECLS
-
-#endif /* __PYGI_INVOKE_H__ */

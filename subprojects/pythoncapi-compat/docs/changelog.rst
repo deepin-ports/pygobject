@@ -1,6 +1,30 @@
 Changelog
 =========
 
+* 2025-11-18: Add PEP 782 functions:
+
+  * ``PyBytesWriter_Create()``
+  * ``PyBytesWriter_Discard()``
+  * ``PyBytesWriter_Finish()``
+  * ``PyBytesWriter_FinishWithPointer()``
+  * ``PyBytesWriter_FinishWithSize()``
+  * ``PyBytesWriter_Format()``
+  * ``PyBytesWriter_GetData()``
+  * ``PyBytesWriter_GetSize()``
+  * ``PyBytesWriter_Grow()``
+  * ``PyBytesWriter_GrowAndUpdatePointer()``
+  * ``PyBytesWriter_Resize()``
+  * ``PyBytesWriter_WriteBytes()``
+
+* 2025-09-01: Add ``PyUnstable_Object_IsUniquelyReferenced()`` function.
+* 2025-06-09: Add ``PyUnicodeWriter_WriteASCII()`` function.
+* 2025-06-03: Add functions:
+
+  * ``PySys_GetAttr()``
+  * ``PySys_GetAttrString()``
+  * ``PySys_GetOptionalAttr()``
+  * ``PySys_GetOptionalAttrString()``
+
 * 2025-01-19: Add ``PyConfig_Get()`` functions.
 * 2025-01-06: Add ``Py_fopen()`` and ``Py_fclose()`` functions.
 * 2024-12-16: Add ``structmember.h`` constants:

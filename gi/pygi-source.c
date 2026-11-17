@@ -23,15 +23,14 @@
  * IN THE SOFTWARE.
  */
 
-#include <pythoncapi_compat.h>
-
-#include "pygi-type.h"
+#include "pygi-source.h"
 
 #include "pygboxed.h"
 #include "pygi-basictype.h"
 #include "pygi-boxed.h"
 #include "pygi-info.h"
-#include "pygi-source.h"
+#include "pygi-type.h"
+#include "pygi-util.h"
 
 typedef struct {
     GSource source;
@@ -158,24 +157,6 @@ static GSourceFuncs pyg_source_funcs = {
     NULL,
 };
 
-/**
- * _pyglib_destroy_notify:
- * @user_data: a PyObject pointer.
- *
- * A function that can be used as a GDestroyNotify callback that will
- * call Py_DECREF on the data.
- */
-static void
-destroy_notify (gpointer user_data)
-{
-    PyObject *obj = (PyObject *)user_data;
-    PyGILState_STATE state;
-
-    state = PyGILState_Ensure ();
-    Py_DECREF (obj);
-    PyGILState_Release (state);
-}
-
 static gboolean
 handler_marshal (gpointer user_data)
 {
@@ -204,7 +185,7 @@ handler_marshal (gpointer user_data)
 }
 
 PyObject *
-pygi_source_set_callback (PyGObject *self_module, PyObject *args)
+pygi_source_set_callback (PyObject *self_module, PyObject *args)
 {
     PyObject *self, *first, *callback, *cbargs = NULL, *data;
     Py_ssize_t len;
@@ -241,7 +222,7 @@ pygi_source_set_callback (PyGObject *self_module, PyObject *args)
     if (data == NULL) return NULL;
 
     g_source_set_callback (pyg_boxed_get (self, GSource), handler_marshal,
-                           data, destroy_notify);
+                           data, pyg_destroy_notify);
 
     Py_RETURN_NONE;
 }

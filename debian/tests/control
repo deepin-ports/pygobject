@@ -1,15 +1,28 @@
-Tests: build
-Restrictions: superficial
-Depends: build-essential, python-gi-dev, python3-all-dev
+Tests:
+ build,
+ build3,
+Depends:
+ build-essential,
+ python-gi-dev,
+ python3-all-dev,
+Restrictions:
+ superficial,
 
-Tests: build3
-Restrictions: superficial
-Depends: build-essential, python-gi-dev, python3-dev
+Tests:
+ python3,
+Depends:
+ gir1.2-glib-2.0,
+ python3-gi,
+Restrictions:
+ superficial,
 
-Tests: python3
-Restrictions: superficial
-Depends: python3-gi, gir1.2-glib-2.0
-
-Tests: python3-all
-Restrictions: allow-stderr, superficial
-Depends: python3-gi, gir1.2-glib-2.0, python3-all, python3-all-dbg
+Tests:
+ python3-all,
+Depends:
+ gir1.2-glib-2.0,
+ python3-all,
+ python3-all-dbg,
+ python3-gi,
+Restrictions:
+ allow-stderr,
+ superficial,

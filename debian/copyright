@@ -1,9 +1,9 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://download.gnome.org/sources/pygobject/
 Upstream-Name: pygobject
 Upstream-Contact:
  John (J5) Palmieri <johnp@redhat.com>
- Tomeu Vizoso <tomeu.vizoso@collabora.co.uk>
-Source: https://download.gnome.org/sources/pygobject/
+ Tomeu Vizoso <tomeu.vizoso@collabora.co.uk>,
 
 Files: *
 Copyright:

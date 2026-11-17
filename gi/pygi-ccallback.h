@@ -17,10 +17,7 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PYGI_CCLOSURE_H__
-#define __PYGI_CCLOSURE_H__
-
-#include <pythoncapi_compat.h>
+#pragma once
 
 #include "pygi-cache.h"
 
@@ -46,5 +43,3 @@ PyObject *_pygi_ccallback_new (GCallback callback, gpointer user_data,
 int pygi_ccallback_register_types (PyObject *m);
 
 G_END_DECLS
-
-#endif /* __PYGI_CCLOSURE_H__ */
