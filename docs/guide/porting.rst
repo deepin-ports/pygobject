@@ -28,6 +28,8 @@ to move to PyGObject and GStreamer 1.0 at the same time.
 **pygobject 2** supports glib 2.0 and Python 2. The new bindings also support
 glib 2.0 and Python 2/3.
 
+.. note::
+    Python 2 is no longer supported since PyGObject 3.38.0.
 
 General Porting Tips
 --------------------
@@ -58,7 +60,7 @@ to port your code to GTK 3.0 right away.
 
 For some general advice regarding the migration from GTK 2.0 to 3.0 see the
 `offical migration guide
-<https://developer.gnome.org/gtk3/stable/gtk-migrating-2-to-3.html>`__. If you
+<https://docs.gtk.org/gtk3/migrating-2to3.html>`__. If you
 need to know how a C symbol is exposed in Python have a look at the `symbol
 mapping listing <https://lazka.github.io/pgi-docs/#Gtk-3.0/mapping.html>`__.
 
@@ -68,13 +70,16 @@ Using the pygtkcompat Compatibility Layer
 
 .. note
 
-   The pygtkcompat module is deprecated. If your code is dependent on pygtkcompat,
-   you have two options:
+   The pygtkcompat module is deprecated since PyGObject 3.46.
+   If your code is dependent on pygtkcompat, you have two options:
 
    1. Update your code to use the GTK interface directly
    2. Copy the bits you need into your own application
 
-PyGObject ships a compatibility layer for pygtk which partially emulates the
+    As of PyGObject 3.48, the compatibility layer will be disfunctional,
+    and it will be completely removed in 3.50.
+
+PyGObject versions prior to 3.48 ship a compatibility layer for pygtk which partially emulates the
 old interfaces:
 
 ::

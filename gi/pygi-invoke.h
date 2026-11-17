@@ -20,27 +20,25 @@
 #ifndef __PYGI_INVOKE_H__
 #define __PYGI_INVOKE_H__
 
-#include <Python.h>
-
-#include <girepository.h>
+#include <girepository/girepository.h>
+#include <pythoncapi_compat.h>
 
 #include "pygi-info.h"
 #include "pygi-invoke-state-struct.h"
 
 G_BEGIN_DECLS
 
-PyObject *pygi_invoke_c_callable    (PyGIFunctionCache *function_cache,
-                                     PyGIInvokeState *state,
-                                     PyObject *py_args, PyObject *py_kwargs);
-PyObject *pygi_callable_info_invoke (GIBaseInfo *info, PyObject *py_args,
-                                     PyObject *kwargs, PyGICallableCache *cache,
-                                     gpointer user_data);
-PyObject *_wrap_g_callable_info_invoke (PyGIBaseInfo *self, PyObject *py_args,
-                                        PyObject *kwargs);
+PyObject *pygi_invoke_c_callable (PyGIFunctionCache *function_cache,
+                                  PyGIInvokeState *state,
+                                  PyObject *const *py_args, size_t py_nargsf,
+                                  PyObject *py_kwnames);
+PyObject *pygi_callable_info_invoke (PyGICallableInfo *self,
+                                     PyObject *const *py_args,
+                                     size_t py_nargsf, PyObject *kwnames);
 
 gboolean _pygi_invoke_arg_state_init (PyGIInvokeState *state);
 
-void _pygi_invoke_arg_state_free     (PyGIInvokeState *state);
+void _pygi_invoke_arg_state_free (PyGIInvokeState *state);
 
 G_END_DECLS
 

@@ -1,14 +1,145 @@
+3.54.5 - 2025-10-18
+-------------------
+
+* Backport: GLib 2.86/GioUnix compatibility :mr:`461`
+
+3.54.3 - 2025-09-21
+-------------------
+
+* Do not skip symbols both in Gio and in platform specific :mr:`452`
+
+3.54.2 - 2025-09-13
+-------------------
+
+* Prefix platform specific symbols with platform name :mr:`451`
+
+3.54.1 - 2025-09-12
+-------------------
+
+* Excempt GioPlatform namespaces from required version check :mr:`450`
+
+3.54.0 - 2025-09-06
+-------------------
+
+* Fix compatibility with Python 3.14 :mr:`433`
+* Add platform specific symbols back to Gio module :mr:`445`
+* Include docs from old GNOME wiki :mr:`441`
+* Add override for `GLib.MainContext.query()` :mr:`446`
+* Fix optional inout parameter marshalling :mr:`447`
+
+3.53.0 - 2025-08-27
+-------------------
+
+* Drop Python upper limit :mr:`418`
+* Add `__enum|flags_values__` back to GEnum and GFlags :mr:`420`
+* Fix asyncio event loop selector with Python 3.13 :mr:`421`
+* Support `Gtk.Template` on sub-classed Python classes :mr:`199`
+* Use GI Repository singleton if GLib >= 2.85 :mr:`427`
+* Expose finish_func on function info to determine if a function can be used as awaitable :mr:`428`
+* Documentation updates :mr:`424` :mr:`426` :mr:`429` :mr:`430`
+* `ParamSpec` objects now return the expected enum type :mr:`432`
+* Fix `Gio.ActionMap` override for `Gio.Application` :mr:`435`
+* Fix regression for functions with multiple callbacks :mr:`436` :mr:`437`
+* Cleanup: callable argument cache :mr:`438`
+* Format Python and C code :mr:`386`
+* Fix compatibility with GLib 2.84 :mr:`443`
+* (chore) clean up array cache code :mr:`440`
+
+3.52.3 - 2025-03-16
+-------------------
+
+* Remove invalid error check for gi_constant_info_get_value :mr:`417`
+
+3.52.2 - 2025-03-12
+-------------------
+
+* Use legacy license definition in pyproject.toml :mr:`416`
+
+3.52.1 - 2025-03-09
+-------------------
+
+Fixed release pipeline
+
+3.52.0 - 2025-03-09
+-------------------
+
+From this version onwards girepository-2.0 is used for introspection.
+This means that you'll need GLib >= 2.80.
+
+* Fix invocation of async constructors :mr:`414`
+* Use keyword module to find out if function or parameter is a keyword :mr:`412`
+* Revert change that should prevent a memory leak in DBus invocation; this is now solved in GLib :mr:`404`
+* Make sure function/method signature parameters have unique names :mr:`410`
+* Support registering new enum and flags types from Python :mr:`400`
+* Only release a python-compatible tarball :mr:`401` :mr:`411`
+* GObject-based classes can now override the (`do`)`dispose` method :mr:`197`
+* Add mappings to Cairo foreign types `cairo_font_face_t` / `cairo_scaled_font_t` :mr:`236` :mr:`403`
+
+
+3.51.0 - 2025-02-01 (pre-release)
+---------------------------------
+
+From this version onwards girepository-2.0 is used for introspection.
+This means that you'll need GLib >= 2.80.
+
+Note: Only enumerations and flags that have a GType associated will have the GEnum
+extra properties, such as `value_nicks` and `value_names`.
+
+* Use `girepository` 2.0 for GIR mappings :mr:`320`
+* Use Python's vectorcall protocol internally :mr:`346` :mr:`356`
+* Improved API for asyncio :mr:`352` :mr:`353`
+* Deprecation: The pygtkcompat module now throws an exception when imported :mr:`261`
+* Method signatures are exposed from PyGObject now! :mr:`341`
+* Use [gobject-introspection-tests](https://gitlab.gnome.org/GNOME/gobject-introspection-tests) for testing :mr:`349`
+* Convenience API for Gdk.RGBA got GDK 4, similar to GDK 3 :mr:`351`
+* Added a [pre-commit](https://pre-commit.com/) configuration :mr:`383`
+* Use standard `enum` module for enums and flags in PyGObject :mr:`394`
+* Added an option to skip [automatic initialization of GTK and GDK](https://pygobject.gnome.org/guide/imports.html) :mr:`368`
+* PyGObject is no longer automatically tested on i386 architecture :mr:`362`
+* Fixed iterator protocol implementation for properties :mr:`392`
+* Various code and documentation improvements :mr:`346` :mr:`348` :mr:`358`, a.o.
+
+Note: the pygtkcompat module will be removed during the 3.53 development cycle.
+
+
+3.50.0 - 2024-09-12
+-------------------
+
+* tests: Fix event test errors when GTK is not installed :mr:`347`
+
+
+3.49.0 - 2024-09-06 (pre-release)
+---------------------------------
+
+* Rename master branch to main
+* Drop support for Python 3.8 :mr:`300`
+* Add Override for Gio.DataInputStream :mr:`293`
+* Treat GParamSpec as any other fundamental type :mr:`268`
+* override connection.register_object to prevent an invocation object from
+  leaking :mr:`219`
+* Various PyPy related fixes :mr:`299`
+* bind_property: Accept keyword arguments :mr:`309`
+* Various documentation improvements :mr:`342` :mr:`343` :mr:`338`
+  :mr:`336` :mr:`335` :mr:`328` :mr:`329` :mr:`330` :mr:`325` :mr:`322` :mr:`312`
+* Python2 / GTK2 cleanups :mr:`338` :mr:`331`
+* Experimental: asyncio integration with support to await Gio async functions :mr:`189`
+* meson: move from .egg-info to .dist-info/METADATA :mr:`306`
+* build: fixes for building with gobject-introspection 1.81 :mr:`344`
+
+
 3.48.2 - 2024-04-06
 -------------------
 
 * Fix support for fundamental (primitive) types, such as Gst.Bitmask
   :issue:`624` :mr:`304`
 
+
 3.48.1 - 2024-03-10
 -------------------
 
 * Fix installation with pip failing in some environments with
   ModuleNotFoundError in g-ir-scanner :issue:`622` :mr:`302`
+
 
 3.48.0 - 2024-03-09
 -------------------
@@ -3324,7 +3455,7 @@ Documentation:
   registered (Paul, :bzbug:`551056`)
 * Fix typos breaking compilation (Frederic Peters :bzbug:`551212`)
 * GFile load_contents methods chop data at first \0
-  (Jonathan Matthew, :bzbug:`551059`) 
+  (Jonathan Matthew, :bzbug:`551059`)
 
 2.15.4 - 2008-09-03
 -------------------
@@ -3403,7 +3534,7 @@ Documentation:
 
 * Add GIO bindings (Johan, Mario Tagliaretti, Thomas Leonard)
 * Move codegen from PyGTK (Johan, Paul Pogonyshev, :bzbug:`542821`)
-* Add more variables to the .pc files (Damien Carbery, Paul, 
+* Add more variables to the .pc files (Damien Carbery, Paul,
   Dan Winship, :bzbug:`486876`)
 * Add pyg_option_group_new to the public API (Johan)
 * Add g_get_application_anme and g_get_progname (Sebastian Rittau)
@@ -3493,10 +3624,10 @@ Documentation:
 
 * distutils build fixes (Cedric)
 * documentation updates (John)
-* gobject.handler_block_by_func and friends now accept methods 
+* gobject.handler_block_by_func and friends now accept methods
   (Johan, Dima, :bzbug:`375589`)
 * avoid truncating of gparamspec (Yevgen Muntyan, :bzbug:`353943`)
-* set __module__ on gobject derived types (Johan, 
+* set __module__ on gobject derived types (Johan,
   Osmo Salomaa, :bzbug:`376099`)
 * Ensure exceptions are raised on errors in gobject.OptionGroup
   (Johan, Laszlo Pandy, :bzbug:`364576`

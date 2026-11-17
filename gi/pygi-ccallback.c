@@ -19,39 +19,33 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "pygi-util.h"
+#include <girepository/girepository.h>
+
 #include "pygi-ccallback.h"
-
-#include <girepository.h>
-
+#include "pygi-util.h"
 
 static PyObject *
-_ccallback_call(PyGICCallback *self, PyObject *args, PyObject *kwargs)
+_ccallback_vectorcall (PyGICCallback *self, PyObject *const *args,
+                       size_t nargsf, PyObject *kwnames)
 {
     PyObject *result;
 
     if (self->cache == NULL) {
-        self->cache = (PyGICCallbackCache *)pygi_ccallback_cache_new (self->info,
-                                                                      self->callback);
-        if (self->cache == NULL)
-            return NULL;
+        self->cache = (PyGICCallbackCache *)pygi_ccallback_cache_new (
+            GI_CALLABLE_INFO (self->info), self->callback);
+        if (self->cache == NULL) return NULL;
     }
 
-    result = pygi_ccallback_cache_invoke (self->cache,
-                                          args,
-                                          kwargs,
+    result = pygi_ccallback_cache_invoke (self->cache, args, nargsf, kwnames,
                                           self->user_data);
     return result;
 }
 
-PYGI_DEFINE_TYPE("gi.CCallback", PyGICCallback_Type, PyGICCallback);
+PYGI_DEFINE_TYPE ("gi.CCallback", PyGICCallback_Type, PyGICCallback);
 
 PyObject *
-_pygi_ccallback_new (GCallback callback,
-                     gpointer user_data,
-                     GIScopeType scope,
-                     GIFunctionInfo *info,
-                     GDestroyNotify destroy_notify)
+_pygi_ccallback_new (GCallback callback, gpointer user_data, GIScopeType scope,
+                     GICallableInfo *info, GDestroyNotify destroy_notify)
 {
     PyGICCallback *self;
 
@@ -59,27 +53,29 @@ _pygi_ccallback_new (GCallback callback,
         Py_RETURN_NONE;
     }
 
-    self = (PyGICCallback *) PyGICCallback_Type.tp_alloc (&PyGICCallback_Type, 0);
+    self =
+        (PyGICCallback *)PyGICCallback_Type.tp_alloc (&PyGICCallback_Type, 0);
     if (self == NULL) {
         return NULL;
     }
 
-    self->callback = (GCallback) callback;
+    self->callback = (GCallback)callback;
     self->user_data = user_data;
     self->scope = scope;
     self->destroy_notify_func = destroy_notify;
-    self->info = g_base_info_ref( (GIBaseInfo *) info);
+    self->info = GI_CALLABLE_INFO (gi_base_info_ref (info));
+    self->vectorcall = (vectorcallfunc)_ccallback_vectorcall;
 
-    return (PyObject *) self;
+    return (PyObject *)self;
 }
 
 static void
 _ccallback_dealloc (PyGICCallback *self)
 {
-    g_base_info_unref ( (GIBaseInfo *)self->info);
+    gi_base_info_unref ((GIBaseInfo *)self->info);
 
     if (self->cache != NULL) {
-        pygi_callable_cache_free ( (PyGICallableCache *)self->cache);
+        pygi_callable_cache_free ((PyGICallableCache *)self->cache);
     }
 
     Py_TYPE (self)->tp_free ((PyObject *)self);
@@ -91,17 +87,20 @@ _ccallback_dealloc (PyGICCallback *self)
 int
 pygi_ccallback_register_types (PyObject *m)
 {
-    Py_SET_TYPE(&PyGICCallback_Type, &PyType_Type);
-    PyGICCallback_Type.tp_flags = (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE);
-    PyGICCallback_Type.tp_dealloc = (destructor) _ccallback_dealloc;
-    PyGICCallback_Type.tp_call = (ternaryfunc) _ccallback_call;
+    Py_SET_TYPE (&PyGICCallback_Type, &PyType_Type);
+    PyGICCallback_Type.tp_flags = (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE
+                                   | Py_TPFLAGS_HAVE_VECTORCALL);
+    PyGICCallback_Type.tp_dealloc = (destructor)_ccallback_dealloc;
+    PyGICCallback_Type.tp_call = PyVectorcall_Call;
+    PyGICCallback_Type.tp_vectorcall_offset =
+        offsetof (PyGICCallback, vectorcall);
 
 
-    if (PyType_Ready (&PyGICCallback_Type) < 0)
-        return -1;
-    Py_INCREF ((PyObject *) &PyGICCallback_Type);
-    if (PyModule_AddObject (m, "CCallback", (PyObject *) &PyGICCallback_Type) < 0) {
-        Py_DECREF ((PyObject *) &PyGICCallback_Type);
+    if (PyType_Ready (&PyGICCallback_Type) < 0) return -1;
+    Py_INCREF ((PyObject *)&PyGICCallback_Type);
+    if (PyModule_AddObject (m, "CCallback", (PyObject *)&PyGICCallback_Type)
+        < 0) {
+        Py_DECREF ((PyObject *)&PyGICCallback_Type);
         return -1;
     }
 

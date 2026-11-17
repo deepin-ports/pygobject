@@ -20,8 +20,8 @@
 #ifndef __PYGI_STRUCT_H__
 #define __PYGI_STRUCT_H__
 
-#include <Python.h>
 #include <pygobject-internal.h>
+#include <pythoncapi_compat.h>
 
 G_BEGIN_DECLS
 
@@ -32,15 +32,11 @@ typedef struct {
 
 extern PyTypeObject PyGIStruct_Type;
 
-PyObject *
-pygi_struct_new (PyTypeObject *type,
-                 gpointer      pointer,
-                 gboolean      free_on_dealloc);
+PyObject *pygi_struct_new (PyTypeObject *type, gpointer pointer,
+                           gboolean free_on_dealloc);
 
-PyObject *
-pygi_struct_new_from_g_type (GType g_type,
-                             gpointer      pointer,
-                             gboolean      free_on_dealloc);
+PyObject *pygi_struct_new_from_g_type (GType g_type, gpointer pointer,
+                                       gboolean free_on_dealloc);
 
 int pygi_struct_register_types (PyObject *m);
 

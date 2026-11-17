@@ -20,22 +20,18 @@
 #ifndef __PYGI_ENUM_MARSHAL_H__
 #define __PYGI_ENUM_MARSHAL_H__
 
-#include <girepository.h>
+#include <girepository/girepository.h>
 #include "pygi-cache.h"
 
 G_BEGIN_DECLS
 
-PyGIArgCache *pygi_arg_enum_new_from_info   (GITypeInfo      *type_info,
-                                             GIArgInfo       *arg_info,   /* may be null */
-                                             GITransfer       transfer,
-                                             PyGIDirection    direction,
-                                             GIInterfaceInfo *iface_info);
+PyGIArgCache *pygi_arg_enum_new_from_info (
+    GITypeInfo *type_info, GIArgInfo *arg_info, /* may be null */
+    GITransfer transfer, PyGIDirection direction, GIEnumInfo *iface_info);
 
-PyGIArgCache *pygi_arg_flags_new_from_info  (GITypeInfo      *type_info,
-                                             GIArgInfo       *arg_info,   /* may be null */
-                                             GITransfer       transfer,
-                                             PyGIDirection    direction,
-                                             GIInterfaceInfo *iface_info);
+PyGIArgCache *pygi_arg_flags_new_from_info (
+    GITypeInfo *type_info, GIArgInfo *arg_info, /* may be null */
+    GITransfer transfer, PyGIDirection direction, GIFlagsInfo *iface_info);
 
 G_END_DECLS
 

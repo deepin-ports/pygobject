@@ -20,9 +20,9 @@
 #ifndef __PYGI_INFO_H__
 #define __PYGI_INFO_H__
 
-#include <Python.h>
+#include <girepository/girepository.h>
+#include <pythoncapi_compat.h>
 
-#include <girepository.h>
 #include "pygi-cache.h"
 
 G_BEGIN_DECLS
@@ -31,24 +31,18 @@ typedef struct {
     PyObject_HEAD
     GIBaseInfo *info;
     PyObject *inst_weakreflist;
-    PyGICallableCache *cache;
 } PyGIBaseInfo;
 
 typedef struct {
     PyGIBaseInfo base;
-
-    /* Reference the unbound version of this struct.
-     * We use this for the actual call to invoke because it manages the cache.
-     */
-    struct PyGICallableInfo *py_unbound_info;
-
-    /* Holds bound argument for instance, class, and vfunc methods. */
-    PyObject *py_bound_arg;
-
+    PyGIFunctionCache *cache;
+    vectorcallfunc vectorcall;
 } PyGICallableInfo;
 
 
-gboolean pygi_g_struct_info_is_simple (GIStructInfo *struct_info);
+PyGIFunctionCache *pygi_callable_info_get_cache (PyGICallableInfo *self);
+
+gboolean pygi_gi_struct_info_is_simple (GIStructInfo *struct_info);
 
 
 /* Private */
@@ -76,20 +70,17 @@ extern PyTypeObject PyGIPropertyInfo_Type;
 extern PyTypeObject PyGIArgInfo_Type;
 extern PyTypeObject PyGITypeInfo_Type;
 
-#define PyGIBaseInfo_GET_GI_INFO(object) g_base_info_ref(((PyGIBaseInfo *)object)->info)
+PyObject *_pygi_info_new (GIBaseInfo *info);
+GIBaseInfo *_pygi_object_get_gi_info (PyObject *object, PyTypeObject *type);
 
-PyObject* _pygi_info_new (GIBaseInfo *info);
-GIBaseInfo* _pygi_object_get_gi_info (PyObject     *object,
-                                      PyTypeObject *type);
-
-gchar* _pygi_g_base_info_get_fullname (GIBaseInfo *info);
+gchar *_pygi_gi_base_info_get_fullname (GIBaseInfo *info);
 
 gsize _pygi_g_type_tag_size (GITypeTag type_tag);
-gsize _pygi_g_type_info_size (GITypeInfo *type_info);
+gsize _pygi_gi_type_info_size (GITypeInfo *type_info);
 
 int pygi_info_register_types (PyObject *m);
 
-gboolean _pygi_is_python_keyword (const gchar *name);
+PyObject *_pygi_is_python_keyword (const gchar *name);
 
 G_END_DECLS
 

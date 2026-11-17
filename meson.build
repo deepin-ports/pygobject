@@ -1,8 +1,10 @@
-project('pygobject', 'c',
-  version : '3.48.2',
+project(
+  'pygobject',
+  'c',
+  version : '3.54.5',
   meson_version : '>= 0.64.0',
-  default_options : [ 'warning_level=1',
-                      'buildtype=debugoptimized'])
+  default_options : ['warning_level=1', 'buildtype=debugoptimized']
+)
 
 pygobject_version = meson.project_version()
 version_arr = pygobject_version.split('.')
@@ -15,33 +17,39 @@ platform_version = '@0@.0'.format(pygobject_version_major)
 pymod = import('python')
 python = pymod.find_installation(get_option('python'), pure: false)
 
-if python.language_version().version_compare('< 3.8')
-  error('Requires Python >= 3.8')
+if python.language_version().version_compare('< 3.9')
+  error('Requires Python >= 3.9')
 endif
 
 python_dep = python.dependency()
 
-glib_version_req = '>= 2.64.0'
+glib_version_req = '>= 2.80.0'
 gi_version_req = '>= 1.64.0'
 pycairo_version_req = '>= 1.16.0'
 libffi_version_req = '>= 3.0'
 
-gi_dep = dependency('gobject-introspection-1.0', version : gi_version_req,
-  fallback: ['gobject-introspection', 'girepo_dep'])
+gi_dep = dependency('girepository-2.0', version : glib_version_req,
+  fallback: ['glib', 'libgirepository_dep'])
 glib_dep = dependency('glib-2.0', version : glib_version_req,
-  fallback: ['glib', 'libglib_dep'])
+  fallback: ['glib', 'libglib_dep'], default_options: ['-Dintrospection=enabled'])
 gobject_dep = dependency('gobject-2.0', version : glib_version_req,
   fallback: ['glib', 'libgobject_dep'])
 gio_dep = dependency('gio-2.0', version : glib_version_req,
   fallback: ['glib', 'libgio_dep'])
-gmodule_dep = dependency('gmodule-2.0', version : glib_version_req,
-  fallback: ['glib', 'libgmodule_dep'])
 ffi_dep = dependency('libffi', version : libffi_version_req,
   fallback : ['libffi', 'ffi_dep'])
 
 with_pycairo = get_option('pycairo')
 
 cc = meson.get_compiler('c')
+
+pythoncapi_compat = subproject('pythoncapi-compat')
+pythoncapi_compat_dep = declare_dependency(
+    include_directories: pythoncapi_compat.get_variable('incdir')
+)
+meson.add_dist_script(
+    python,
+    join_paths(meson.current_source_dir(), 'subprojects', 'packagefiles', 'pythoncapi-compat-dist.py'))
 
 if not with_pycairo.disabled()
   cairo_dep = dependency('cairo', required: with_pycairo.enabled() and cc.get_id() != 'msvc')
@@ -119,7 +127,6 @@ else
     '-Wmissing-include-dirs',
     '-Wmissing-noreturn',
     '-Wmissing-prototypes',
-    '-Wnested-externs',
     '-Wnull-dereference',
     '-Wold-style-definition',
     '-Wpacked',
@@ -194,10 +201,10 @@ if not for_wheel
 
   pkginfo_conf = configuration_data()
   pkginfo_conf.set('VERSION', py_version)
-  configure_file(input : 'PKG-INFO.in',
-  output : 'PyGObject-@0@.egg-info'.format(py_version),
+  configure_file(input : 'METADATA.in',
+  output : 'METADATA',
   configuration : pkginfo_conf,
-  install_dir : python.get_install_dir(pure : false))
+  install_dir : python.get_install_dir(pure : false) / 'PyGObject-@0@.dist-info'.format(py_version))
 endif
 
 pygobject_dep = declare_dependency(
@@ -209,9 +216,17 @@ pygobject_dep = declare_dependency(
 
 subdir('gi')
 subdir('pygtkcompat')
+
 with_tests = get_option('tests')
 if with_tests
-subdir('tests')
+  gi_tests = subproject('gobject-introspection-tests', default_options : ['cairo=' + cairo_dep.found().to_string()])
+
+  # We cannot depend on gobject-introspection-1.0 fallback if we also need GLib to build.
+  # All we need is the g-ir-scanner and friends
+  if glib_dep.type_name() != 'internal'
+    dependency('gobject-introspection-1.0', version : gi_version_req, fallback: ['gobject-introspection', 'girepo_dep'])
+  endif
+  subdir('tests')
 endif
 
 devenv = environment()

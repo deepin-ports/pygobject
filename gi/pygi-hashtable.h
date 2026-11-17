@@ -21,15 +21,14 @@
 #define __PYGI_HASHTABLE_H__
 
 #include "pygi-cache.h"
-#include <girepository.h>
+#include <girepository/girepository.h>
 
 G_BEGIN_DECLS
 
-PyGIArgCache *pygi_arg_hash_table_new_from_info (GITypeInfo         *type_info,
-                                                 GIArgInfo          *arg_info,   /* may be null */
-                                                 GITransfer          transfer,
-                                                 PyGIDirection       direction,
-                                                 PyGICallableCache  *callable_cache);
+PyGIArgCache *pygi_arg_hash_table_new_from_info (
+    GITypeInfo *type_info, GIArgInfo *arg_info, /* may be null */
+    GITransfer transfer, PyGIDirection direction,
+    PyGICallableCache *callable_cache);
 
 G_END_DECLS
 

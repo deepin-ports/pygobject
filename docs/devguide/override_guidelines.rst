@@ -5,8 +5,7 @@ Python Override Guidelines
 This document serves as a guide for developers creating new PyGObject
 overrides or modifying existing ones. This document is not intended as hard
 rules as there may always be pragmatic exceptions to what is listed here. It
-is also a good idea to study the `Zen of Python by Tim Peters
-<https://www.python.org/dev/peps/pep-0020/>`__.
+is also a good idea to study the Zen of Python by Tim Peters in  :pep:`20`.
 
 In general, overrides should be minimized and preference should always be
 placed on updating the underlying API to be more bindable, adding features to
@@ -37,7 +36,7 @@ bindable API becomes a reality (:bzbug:`707280`).
 * Avoid overriding ``__init__``
   *Reason*: Sub-classing the overridden class then becomes challenging and
   has the potential to cause bugs (see :bzbug:`711487` and reasoning
-  listed in https://wiki.gnome.org/Projects/PyGObject/InitializerDeprecations).
+  listed in :doc:`initializer_deprecations`).
 
 * Unbindable functions which take variadic arguments are generally ok to add
   Python implementations, but keep in mind the prior noted guidelines. A lot
@@ -81,7 +80,6 @@ bindable API becomes a reality (:bzbug:`707280`).
     *Reason*: Read or watch Ned Batchelders "`Pragmatic Unicode
     <https://nedbatchelder.com/text/unipain.html>`__"
 
-* For PyGTK compatibility APIs, add them to PyGTKCompat not overrides.
 * Prefer adapter patterns over of inheritance and overrides.
 
   *Reason*: An adapter allows more flexibility and less dependency on

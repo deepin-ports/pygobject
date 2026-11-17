@@ -36,9 +36,10 @@ your operating system.
 .. code:: console
 
     sudo apt-get install -y python3-venv python3-wheel python3-dev
-    sudo apt-get install -y libgirepository1.0-dev build-essential \
-      libbz2-dev libreadline-dev libssl-dev zlib1g-dev libsqlite3-dev wget \
-      curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libcairo2-dev
+    sudo apt-get install -y gobject-introspection libgirepository-2.0-dev \
+      gir1.2-girepository-3.0 build-essential libbz2-dev libreadline-dev \
+      libssl-dev zlib1g-dev libsqlite3-dev wget curl llvm libncurses-dev \
+      xz-utils tk-dev libcairo2-dev
 
 
 .. _fedora-dep:
@@ -101,7 +102,7 @@ With homebrew:
 
     brew update
     brew install python3 gobject-introspection libffi
-    export PKG_CONFIG_PATH=/opt/homebrew/opt/libffi/lib/pkgconfig  # use /usr/local/ for older Homebrew installs
+    export PKG_CONFIG_PATH=$(brew --prefix libffi)/lib/pkgconfig  # use /usr/local/ for older Homebrew installs
 
 
 .. _install-pyenv:
@@ -160,10 +161,37 @@ First, check out the source code:
     git clone https://gitlab.gnome.org/GNOME/pygobject.git
     cd pygobject
 
+With a local copy of PyGObject, there's three ways to start developing:
+
+1. PDM, a modern Python package and dependency manager
+2. Pip, the default Python package installer
+3. Meson, use the Meson build system directly
+
+
+PDM
+---
+
+Make sure you have `PDM <https://pdm-project.org>`_ 2.13 or newer installed.
+
+Then set up the project by running:
+
+.. code:: console
+
+    pdm install
+
+You can run the unit tests with:
+
+.. code:: console
+
+    pdm run pytest
+
+
+Pip
+---
 
 It's always a good idea to work from within a Python virtual environment.
 PyGObject is built with `Meson <https://mesonbuild.com/>`_.
-In order to support 
+In order to support
 `editable installs <https://meson-python.readthedocs.io/en/latest/how-to-guides/editable-installs.html>`_,
 Meson-python, Meson, and Ninja should be installed in the virtual environment.
 
@@ -171,7 +199,7 @@ Meson-python, Meson, and Ninja should be installed in the virtual environment.
 
     python3 -m venv .venv
     source .venv/bin/activate
-    pip install meson-python meson ninja pycairo
+    python3 -m pip install meson-python meson ninja pycairo pytest pre-commit
 
 .. note::
 
@@ -181,15 +209,15 @@ Install PyGObject in your local environment with the ``--no-build-isolation`` to
 
 .. code:: console
 
-   pip install --no-build-isolation -e '.[dev]'
+   pip install --no-build-isolation --config-settings=setup-args="-Dtests=true" -e '.[dev]'
 
 By default the C libraries are built in "release" mode (no debug symbols).
 To compile the C libraries with debug symbols, run
 
 .. code:: console
 
-   pip install --no-build-isolation --config-settings=setup-args="-Dbuildtype=debug" -e '.[dev]'
-   
+   pip install --no-build-isolation --config-settings=setup-args="-Dbuildtype=debug" --config-settings=setup-args="-Dtests=true" -e '.[dev]'
+
 Open a Python console:
 
 .. code:: python
@@ -202,7 +230,12 @@ Run the unittests:
 
    pytest
 
-It's also not possible to run the tests from meson:
+
+Meson
+-----
+
+It's also possible to run the tests from Meson. Tests are still run with Pytest, so it's important
+that Pytest is installed.
 
 .. code:: console
 
@@ -210,11 +243,27 @@ It's also not possible to run the tests from meson:
    meson test -C _build
 
 
-Create a release tarball and wheel:
+Contributing Changes
+====================
 
-.. code:: console
+First off, thank you for considering contributing to PyGObject.
+We really appreciate it!
 
-    pip install build
-    python -m build
+* Create your own fork of the repository
+* Add tests for your changes
+* Do the changes in your fork
+* If you like the change and think the project could use it:
+
+  * Make sure you are following the
+    `GNOME Code of Conduct <https://conduct.gnome.org>`_
+  * Be sure you have the pre-commit hook installed with:
+
+    .. code:: console
+
+      pre-commit install
+
+    It will ensure that lint and code formatting tools are run automatically.
+  * Commit your changes
+  * Create a merge request
 
 .. _pyenv: https://github.com/pyenv/pyenv

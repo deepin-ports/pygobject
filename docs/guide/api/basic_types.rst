@@ -10,7 +10,7 @@ cases where it's appropriate it will use default Python types like :obj:`int`,
 Number Types
 ------------
 
-All glib integer types get mapped to :obj:`int`, :obj:`long` and :obj:`float`.
+All glib integer types get mapped to :obj:`int` and :obj:`float`.
 Since the glib integer types are always range limited, conversions from Python
 int/long can fail with :class:`OverflowError`:
 
@@ -22,23 +22,13 @@ int/long can fail with :class:`OverflowError`:
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     OverflowError: 2147483648 not in range -2147483648 to 2147483647
-    >>> 
+    >>>
 
 
 Text Types
 ----------
 
-In case you use Python 2 then text is utf-8 encoded :obj:`str`, in case of
-Python 3 :obj:`str` is used.
-
-
-Platform String Types
----------------------
-
-* Windows + Python 2: utf-8 encoded :obj:`str`
-* Windows + Python 3: :obj:`str`
-* Unix + Python 2: :obj:`str`
-* Unix + Python 3: :obj:`str`
+Text types are mapped to :obj:`str`.
 
 
 Other Types

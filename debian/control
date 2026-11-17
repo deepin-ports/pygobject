@@ -7,12 +7,15 @@ Build-Depends: at-spi2-core <!nocheck>,
                dbus-daemon <!nocheck>,
                debhelper-compat (= 13),
                dh-sequence-python3,
+               gir1.2-cairo-1.0-dev,
+               gir1.2-gio-2.0-dev (>= 2.86.0-7~),
+               gir1.2-girepository-3.0 (>= 2.86.0-7~) <!nocheck>,
                gir1.2-gtk-3.0 <!nocheck>,
-               gir1.2-girepository-2.0 <!nocheck>,
+               gobject-introspection,
                libcairo2-dev,
                libffi-dev (>= 3.3),
-               libgirepository1.0-dev (>= 1.64.0~),
-               libglib2.0-dev (>= 2.64.0),
+               libgirepository-2.0-dev (>= 2.86.0-7~),
+               libglib2.0-dev (>= 2.86.0-7~),
                locales <!nocheck>,
                meson,
                python3-all-dev,
@@ -22,8 +25,7 @@ Build-Depends: at-spi2-core <!nocheck>,
                python3-setuptools,
                xauth <!nocheck>,
                xvfb <!nocheck>
-Rules-Requires-Root: no
-Standards-Version: 4.6.2
+Standards-Version: 4.7.2
 Vcs-Browser: https://salsa.debian.org/gnome-team/pygobject
 Vcs-Git: https://salsa.debian.org/gnome-team/pygobject.git
 Homepage: https://pygobject.readthedocs.io/
@@ -31,11 +33,27 @@ Homepage: https://pygobject.readthedocs.io/
 Package: python3-gi
 Architecture: any
 Multi-Arch: allowed
-Depends: gir1.2-glib-2.0 (>= 1.64.0),
-         gir1.2-girepository-2.0,
+Depends: gir1.2-glib-2.0 (>= 2.86.0-7~),
+         gir1.2-girepository-3.0 (>= 2.86.0-7~),
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
+Breaks: autoradio (<< 3.6.4-1.1~),
+        blueprint-compiler (<< 0.16.0),
+        budgie-desktop (<< 10.9.3-1.1~),
+        entangle (<< 3.0-5.1~),
+        eog (<< 47.0-4~),
+        eom (<< 1.28.0-1.1~),
+        exaile (<< 4.1.4),
+        gedit (<< 48.1-8~),
+        gir1.2-peas-1.0 (<< 1.36.0-6~),
+        gnome-music (<< 48.0),
+        liferea (<< 1.16.1+ds-2.1~),
+        pluma (<< 1.28.0-1.1~),
+        rednotebook (<< 2.39),
+        rhythmbox (<< 3.4.9-2~),
+        streamtuner2 (<< 2.2.2+dfsg-2.3~),
+        totem (<< 43.2-7~),
 Description: Python 3 bindings for gobject-introspection libraries
  GObject is an abstraction layer that allows programming with an object
  paradigm that is compatible with many languages. It is a part of Glib,
@@ -48,7 +66,7 @@ Description: Python 3 bindings for gobject-introspection libraries
 Package: python-gi-dev
 Architecture: any
 Depends: libffi-dev (>= 3.3),
-         libglib2.0-dev (>= 2.64.0),
+         libglib2.0-dev (>= 2.86.0-7~),
          python3-gi (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}

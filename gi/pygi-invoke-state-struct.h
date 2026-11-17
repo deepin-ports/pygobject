@@ -1,14 +1,12 @@
 #ifndef __PYGI_INVOKE_STATE_STRUCT_H__
 #define __PYGI_INVOKE_STATE_STRUCT_H__
 
-#include <Python.h>
-
-#include <girepository.h>
+#include <girepository/girepository.h>
+#include <pythoncapi_compat.h>
 
 G_BEGIN_DECLS
 
-typedef struct _PyGIInvokeArgState
-{
+typedef struct _PyGIInvokeArgState {
     /* Holds memory for the C value of arguments marshaled "to" or "from" Python. */
     GIArgument arg_value;
 
@@ -25,8 +23,7 @@ typedef struct _PyGIInvokeArgState
 } PyGIInvokeArgState;
 
 
-typedef struct _PyGIInvokeState
-{
+typedef struct _PyGIInvokeState {
     PyObject *py_in_args;
     gssize n_py_in_args;
 
@@ -55,6 +52,11 @@ typedef struct _PyGIInvokeState
     GError *error;
 
     gboolean failed;
+
+    /* An awaitable to return for an async function that was called with
+     * default arguments.
+     */
+    PyObject *py_async;
 
     gpointer user_data;
 

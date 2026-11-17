@@ -1,3 +1,239 @@
+pygobject (3.54.5-7) unstable; urgency=medium
+
+  * Use Breaks: gir1.2-libpeas-1.0 instead of libpeas.
+    libpeas is only a source package name and Breaks must be used with
+    binary package names.
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 07 Nov 2025 13:35:33 -0500
+
+pygobject (3.54.5-6) unstable; urgency=medium
+
+  * Add versioned Breaks: budgie-desktop for #1120138
+  * Remove obsolete dh_strip dbgsym migration rule
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 06 Nov 2025 09:45:38 -0500
+
+pygobject (3.54.5-5) unstable; urgency=medium
+
+  * Team upload
+
+  [ Jeremy Bícha ]
+  * Update Breaks version on eom and pluma
+
+  [ Simon McVittie ]
+  * Add versioned Breaks on streamtuner2, for removal of pygtkcompat.
+    This assumes that the next maintainer upload or NMU will fix #1094922.
+  * Release to unstable (starts transition: #1118613) (Closes: #1099164)
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 05 Nov 2025 10:58:31 +0000
+
+pygobject (3.54.5-4) experimental; urgency=medium
+
+  * Team upload
+  * d/control: Correct Breaks version on eog
+  * d/control: Depend on a newer GLib, to ensure that #1099192 is fixed.
+    Otherwise we'll fail to load typelibs from the legacy pre-multiarch
+    location, which would be a regression for a few packages like
+    ibus-anthy and isenkram.
+  * d/control: Add Breaks on older entangle, eom, liferea, pluma.
+    This assumes that the next maintainer upload or NMU of these
+    packages will make them compatible with pygobject >= 3.52,
+    fixing #1118501, #1118496, #1118500, #1118497 respectively
+    (patches are available).
+  * Add versioned Breaks on autoradio, for removal of pygtkcompat.
+    This assumes that the next maintainer upload or NMU will
+    fix #1118278.
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 23 Oct 2025 12:18:19 +0100
+
+pygobject (3.54.5-3) experimental; urgency=medium
+
+  * Team upload
+  * d/p/Fix-memory-errors-in-gi_marshalling_tests_length_array_ut.patch:
+    Add patch from upstream gobject-introspection-tests hopefully fixing
+    FTBFS on 64-bit big-endian (Closes: #1118463)
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 20 Oct 2025 16:49:06 +0100
+
+pygobject (3.54.5-2) experimental; urgency=medium
+
+  * Team upload
+  * d/control: Add Breaks on some older Python apps.
+    Newer versions of blueprint-compiler, exaile, gnome-music and rednotebook
+    are dynamically compatible with either pygobject >= 3.52 or << 3.52,
+    but older versions were only compatible with pygobject << 3.52.
+    (Helps: #1099164)
+  * d/control: Add Breaks on older libpeas.
+    This library needs to be converted to libgirepository-2.0 at the same
+    time as pygobject (Helps: #1099164, #1118363)
+  * d/control: Add Breaks on older eog, gedit, rhythmbox, totem.
+    These apps need source changes to be compatible with this new
+    pygobject. We will probably also need to add Breaks on eom, liferea
+    and pluma, and possibly also endeavour and entangle, but the moment
+    I'm omitting those to make it easier for those apps' maintainers to
+    test against this pygobject.
+  * Merge packaging from debian/unstable git branch (no functional changes)
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 20 Oct 2025 14:02:08 +0100
+
+pygobject (3.54.5-1) experimental; urgency=medium
+
+  [ Jeremy Bícha ]
+  * New upstream release
+  * Remove all patches: applied in new release
+
+  [ Simon McVittie ]
+  * Merge packaging changes from debian/unstable git branch
+    (no functional changes).
+    This makes the history "fast-forwarding" (unlike just editing
+    debian/changelog), which is desirable when using dgit.
+  * d/watch: Convert to v5 format
+  * d/copyright: Don't quote the FSF's former postal address here
+  * d/control: Consistently put a version constraint on all parts of
+    src:glib2.0
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Sat, 18 Oct 2025 08:56:00 -0400
+
+pygobject (3.54.3-1) experimental; urgency=medium
+
+  * New upstream release
+  * Import changes from 3.50.0-8
+  * Remove patches applied in new release
+  * Cherry-pick a build test fix
+  * Update patches from upstream !261
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 15 Oct 2025 10:17:50 -0400
+
+pygobject (3.52.3-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 19 Mar 2025 09:58:08 -0400
+
+pygobject (3.52.2-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 14 Mar 2025 11:36:53 -0400
+
+pygobject (3.51.0-1) experimental; urgency=medium
+
+  * New upstream release
+  * Drop patch applied upstream
+  * Update girepository dependencies
+  * autopkgtests: Drop test_glib_flag test since it's not compatible with
+    the new release. However, we don't believe anything else used this
+    particular functionality.
+
+ -- Alessandro Astone <alessandro.astone@canonical.com>  Wed, 26 Feb 2025 13:34:52 -0500
+
+pygobject (3.50.2-1) unstable; urgency=medium
+
+  * Team upload
+  * New upstream stable release
+    - Fix event loop selector with Python 3.13
+      (pygobject!423 upstream, not previously fixed in Debian)
+    - Compatibility with GLib >= 2.86
+      (already fixed in 3.50.0-5, -6, -7 in Debian)
+    - Fix DesktopAppInfo regressions with GLib < 2.86
+      (#1117444, already fixed in 3.50.0-8 in Debian)
+    - Fix asyncio on big-endian machines
+      (#1085891, already fixed in 3.50.0-2 in Debian)
+  * d/patches: Drop the patches that were in 3.50.0-8, all applied
+    (slightly differently in some cases) upstream
+  * d/p/Update-refcount-tests-in-3.14-less-refcounts-are-done.patch,
+    d/p/Add-comment-where-3.14-refcount-updates-hurt.patch:
+    Add new patches from upstream 3.54.0 fixing some (but not all) of
+    the test failures with Python 3.14 (Helps: #1117897)
+  * d/copyright: Don't quote the FSF's former postal address here
+  * d/watch: Convert to v5 format
+  * d/watch: Only watch for v3.50.x on this branch
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 18 Oct 2025 14:55:30 +0100
+
+pygobject (3.50.0-8) unstable; urgency=medium
+
+  * Team upload
+  * d/p/tests-Exercise-all-methods-defined-by-GDesktopAppInfo.patch,
+    d/p/tests-Exercise-the-methods-of-GUnixInputStream-GUnixOutpu.patch,
+    d/p/tests-Exercise-GioUnix.FDMessage-methods.patch,
+    d/p/overrides-Make-GioUnix-work-as-intended-with-older-GLib.patch,
+    d/p/tests-Test-GioUnix-compatibility-on-all-GLib-versions-bac.patch:
+    Add proposed patches to fix DesktopAppInfo regressions
+    (Closes: #1117444)
+  * d/control: Bump required GLib version to 2.80.
+    The patches added in 3.50.0-5 and subsequent versions require this.
+  * d/control: Standards-Version: 4.7.2 (no changes required)
+  * d/control: Remove Rules-Requires-Root, unnecessary since trixie
+
+ -- Simon McVittie <smcv@debian.org>  Sun, 12 Oct 2025 13:03:03 +0100
+
+pygobject (3.50.0-7) unstable; urgency=medium
+
+  * debian/patches/git_symbols_compat.patch:
+    - fix an issue with the previous changes that would lead to some symbols
+      to be missing, fixes the build of libportal
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Tue, 23 Sep 2025 16:17:39 +0200
+
+pygobject (3.50.0-6) unstable; urgency=medium
+
+  * d/p: Import patches to have properly named platform-specific symbols in Gio
+    The Unix symbols needs to be scoped in the Unix name when used through the
+    Gio namespace.
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 10 Sep 2025 19:56:06 +0200
+
+pygobject (3.50.0-5) unstable; urgency=medium
+
+  * debian: Update branch references
+  * d/p: Cherry-pick patches for GLib 2.86 compatibility.
+    Glib 2.86 moved Gio symbols to GioUnix, so we need to adapt pygobject to
+    this not to break apps using Gio to use GioUnix classes.
+  * debian/patches: Cherry-pick upstream revert on ref count check test
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 10 Sep 2025 04:14:13 +0200
+
+pygobject (3.50.0-4) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * d/p/async-Use-correct-T_BOOL-type-for-_asyncio_future_blockin.patch:
+    Mark patch as applied upstream
+  * d/salsa-ci.yml: Use recommended recipe URL
+  * d/salsa-ci.yml: Disable Architecture: all build
+  * d/salsa-ci.yml: Don't attempt cross-building
+  * d/control: Explicitly build-depend on required GIR XML
+  * d/control: Build-depend on gobject-introspection and libgirepository-1.0-dev
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 17 Jan 2025 18:50:54 -0500
+
+pygobject (3.50.0-3) unstable; urgency=medium
+
+  * Team upload
+  * Release to unstable (Closes: #1082723)
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 26 Oct 2024 13:44:07 +0100
+
+pygobject (3.50.0-2) experimental; urgency=medium
+
+  * Team upload
+  * d/p/async-Use-correct-T_BOOL-type-for-_asyncio_future_blockin.patch:
+    Add proposed patch to fix asyncio calls on big-endian machines
+    (Closes: #1085891)
+  * Standards-Version: 4.7.0 (no changes required)
+  * d/source/lintian-overrides: Mark missing B-D on mesonpy as a false
+    positive.
+    We currently build with Meson directly, not via mesonpy.
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 23 Oct 2024 13:53:17 +0100
+
+pygobject (3.50.0-1) experimental; urgency=medium
+
+  * New upstream release
+  * .egg-info has been replaced by .dist-info/METADATA
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 16 Sep 2024 15:37:16 -0400
+
 pygobject (3.48.2-1) unstable; urgency=medium
 
   * New upstream release

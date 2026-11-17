@@ -18,9 +18,17 @@
 #ifndef __PYGI_CLOSURE_H__
 #define __PYGI_CLOSURE_H__
 
-#include <Python.h>
-#include <girffi.h>
+
+/* Workaround for FFI_GO_CLOSURES not being defined on macOS
+ * See also: https://github.com/openjdk/jdk17u-dev/pull/741
+ */
+#ifndef FFI_GO_CLOSURES
+#define FFI_GO_CLOSURES 0
+#endif
+
 #include <ffi.h>
+#include <pythoncapi_compat.h>
+#include <girepository/girepository.h>
 
 #include "pygi-cache.h"
 
@@ -29,8 +37,7 @@ G_BEGIN_DECLS
 
 /* Private */
 
-typedef struct _PyGICClosure
-{
+typedef struct _PyGICClosure {
     GICallableInfo *info;
     PyObject *function;
 
@@ -39,28 +46,25 @@ typedef struct _PyGICClosure
 
     GIScopeType scope;
 
-    PyObject* user_data;
+    PyObject *user_data;
 
     PyGIClosureCache *cache;
 } PyGICClosure;
 
-void _pygi_closure_handle (ffi_cif *cif, void *result, void
-                           **args, void *userdata);
+void _pygi_closure_handle (ffi_cif *cif, void *result, void **args,
+                           void *userdata);
 
-void _pygi_invoke_closure_free (PyGICClosure* invoke_closure);
+void _pygi_invoke_closure_free (PyGICClosure *invoke_closure);
 
-PyGICClosure* _pygi_make_native_closure (GICallableInfo* info,
+PyGICClosure *_pygi_make_native_closure (GICallableInfo *info,
                                          PyGIClosureCache *cache,
-                                         GIScopeType scope,
-                                         PyObject *function,
+                                         GIScopeType scope, PyObject *function,
                                          PyObject *user_data);
 
-PyGIArgCache *pygi_arg_callback_new_from_info  (GITypeInfo        *type_info,
-                                                GIArgInfo         *arg_info,   /* may be null */
-                                                GITransfer         transfer,
-                                                PyGIDirection      direction,
-                                                GIInterfaceInfo   *iface_info,
-                                                PyGICallableCache *callable_cache);
+PyGIArgCache *pygi_arg_callback_new_from_info (
+    GITypeInfo *type_info, GIArgInfo *arg_info, /* may be null */
+    GITransfer transfer, PyGIDirection direction, GICallbackInfo *iface_info,
+    PyGICallableCache *callable_cache);
 
 G_END_DECLS
 

@@ -38,22 +38,24 @@ the following content and save it somewhere:
 Before we can run the example application we need to install PyGObject, GTK
 and their dependencies. Follow the instructions for your platform below.
 
+For full IDE support (incl. autocomplete) you will also need typing stubs available here `PyGObject-stubs <https://pypi.org/project/PyGObject-stubs/>`_.
+
 ======================================================= ==================================================== ==========================================================
 |ubuntu-logo| :ref:`Ubuntu <ubuntu-getting-started>`    |fedora-logo| :ref:`Fedora <fedora-getting-started>` |arch-logo| :ref:`Arch Linux <arch-getting-started>`
 |windows-logo| :ref:`Windows <windows-getting-started>` |macosx-logo| :ref:`macOS <macosx-getting-started>`  |opensuse-logo| :ref:`openSUSE <opensuse-getting-started>`
 ======================================================= ==================================================== ==========================================================
 
-After running the example application have a look at the `PyGObject Guide
-<https://rafaelmardojai.pages.gitlab.gnome.org/pygobject-guide>`__ for tutorials on how to create GTK apps and the `GNOME Python API docs
-<https://amolenaar.pages.gitlab.gnome.org/pygobject-docs>`__ for API documentation for all supported
-libraries. There are also typing stubs available here `PyGObject-stubs <https://pypi.org/project/PyGObject-stubs/>`_.
+After running the example application have a look at the :doc:`/tutorials/index` for an overview of how to create GTK apps and the `GNOME Python API docs
+<https://api.pygobject.gnome.org/>`__ for API documentation for all supported
+libraries.
+
 
 .. _windows-getting-started:
 
 |windows-logo| Windows
 ----------------------
 
-#) Go to http://www.msys2.org/ and download the x86_64 installer
+#) Go to https://www.msys2.org/ and download the x86_64 installer
 #) Follow the instructions on the page for setting up the basic environment
 #) Run ``C:\msys64\ucrt64.exe`` - a terminal window should pop up
 #) Execute ``pacman -Suy``
@@ -79,7 +81,7 @@ Installing the system provided PyGObject:
 
 Installing from PyPI with pip:
   #) Open a terminal and enter your virtual environment
-  #) Execute ``sudo apt install libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0``
+  #) Execute ``sudo apt install libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0``
      to install the build dependencies and GTK
   #) Execute ``pip3 install pycairo`` to build and install Pycairo
   #) Execute ``pip3 install PyGObject`` to build and install PyGObject
@@ -172,3 +174,10 @@ Installing from PyPI with pip:
 
 For more details on how to use a virtualenv with PyGObject, see the
 ":ref:`devenv`" page.
+
+.. toctree::
+    :hidden:
+    :maxdepth: 1
+
+    changelog
+    bugs_repo

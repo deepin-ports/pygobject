@@ -20,7 +20,8 @@
 #ifndef __PYGI_CCLOSURE_H__
 #define __PYGI_CCLOSURE_H__
 
-#include <Python.h>
+#include <pythoncapi_compat.h>
+
 #include "pygi-cache.h"
 
 G_BEGIN_DECLS
@@ -28,20 +29,19 @@ G_BEGIN_DECLS
 typedef struct {
     PyObject_HEAD
     GCallback callback;
-    GIFunctionInfo *info;
+    GICallableInfo *info;
     gpointer user_data;
     GIScopeType scope;
     GDestroyNotify destroy_notify_func;
     PyGICCallbackCache *cache;
+    vectorcallfunc vectorcall;
 } PyGICCallback;
 
 extern PyTypeObject PyGICCallback_Type;
 
-PyObject * _pygi_ccallback_new (GCallback       callback,
-                                gpointer        user_data,
-                                GIScopeType     scope,
-                                GIFunctionInfo *info,
-                                GDestroyNotify  destroy_notify);
+PyObject *_pygi_ccallback_new (GCallback callback, gpointer user_data,
+                               GIScopeType scope, GICallableInfo *info,
+                               GDestroyNotify destroy_notify);
 
 int pygi_ccallback_register_types (PyObject *m);
 
